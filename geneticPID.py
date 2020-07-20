@@ -115,10 +115,12 @@ def graph(name, values):
         p.join()
     for p in parent:
         plot.plot(p.recv())
-    plot.legend(legend, loc='lower right')
+    if values[0] is not None:
+        plot.legend(legend, loc='lower right')
     plot.ylabel("Fitness")
     plot.xlabel("Generation")
     plot.savefig("{}.png".format(name), bbox_inches='tight')
+    plot.close()
 
 
 if __name__ == '__main__':
