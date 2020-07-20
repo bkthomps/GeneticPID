@@ -64,10 +64,7 @@ def genetic_algorithm(generation_count, population_size, crossover_prob, mutate_
         best_factor_list.append(best_factor)
         i += 1
     print("Best: t_r = ", best_tr, ", t_s = ", best_ts, ", m_p", best_mp)
-    plot.plot(best_factor_list)
-    plot.ylabel("Fitness")
-    plot.xlabel("Generation")
-    plot.show()
+    return best_factor_list
 
 
 def crossover(probability, child_1, child_2):
@@ -91,9 +88,51 @@ def mutate(probability, child):
         child[2] = round(random() * (2.37 - 0.27) + 0.27, 2)
 
 
+def graph_generation_count(gen_count):
+    plot.plot(genetic_algorithm(gen_count, 50, 0.6, 0.25))
+    plot.ylabel("Fitness")
+    plot.xlabel("Generation")
+    plot.show()
+
+
+def graph_population_count():
+    plot.plot(genetic_algorithm(50, 10, 0.6, 0.25))
+    plot.plot(genetic_algorithm(50, 20, 0.6, 0.25))
+    plot.plot(genetic_algorithm(50, 30, 0.6, 0.25))
+    plot.plot(genetic_algorithm(50, 40, 0.6, 0.25))
+    plot.plot(genetic_algorithm(50, 50, 0.6, 0.25))
+    plot.legend(['pop = 10', 'pop = 20', 'pop = 30', 'pop = 40', 'pop = 50'], loc='lower right')
+    plot.ylabel("Fitness")
+    plot.xlabel("Generation")
+    plot.show()
+
+
+def graph_crossover():
+    plot.plot(genetic_algorithm(50, 50, 0.2, 0.25))
+    plot.plot(genetic_algorithm(50, 50, 0.4, 0.25))
+    plot.plot(genetic_algorithm(50, 50, 0.6, 0.25))
+    plot.plot(genetic_algorithm(50, 50, 0.8, 0.25))
+    plot.legend(['crossover prob. = 20%', 'crossover prob. = 40%', 'crossover prob. = 60%', 'crossover prob. = 80%'],
+                loc='lower right')
+    plot.ylabel("Fitness")
+    plot.xlabel("Generation")
+    plot.show()
+
+
+def graph_mutation():
+    plot.plot(genetic_algorithm(50, 50, 0.6, 0.10))
+    plot.plot(genetic_algorithm(50, 50, 0.6, 0.25))
+    plot.plot(genetic_algorithm(50, 50, 0.6, 0.40))
+    plot.plot(genetic_algorithm(50, 50, 0.6, 0.70))
+    plot.legend(['mutation prob. = 10%', 'mutation prob. = 25%', 'mutation prob. = 40%', 'mutation prob. = 70%'],
+                loc='lower right')
+    plot.ylabel("Fitness")
+    plot.xlabel("Generation")
+    plot.show()
+
+
 if __name__ == '__main__':
-    generations = 150  # default 150
-    population = 50  # default 50
-    crossover_probability = 0.6  # default 0.6
-    mutation_probability = 0.25  # default 0.25
-    genetic_algorithm(generations, population, crossover_probability, mutation_probability)
+    graph_generation_count(150)
+    # graph_population_count()
+    # graph_crossover()
+    # graph_mutation()
