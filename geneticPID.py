@@ -68,15 +68,14 @@ def genetic_algorithm(generation_count, population_size, crossover_prob, mutate_
 
 
 def crossover(probability, child_1, child_2):
-    cross_one = random() < probability
-    cross_two = random() < probability
-    if cross_one and cross_two:
-        child_1[1], child_2[1] = child_2[1], child_1[1]
-    elif cross_one:
-        child_1[0], child_2[0] = child_2[0], child_1[0]
-    elif cross_two:
-        child_1[2], child_2[2] = child_2[2], child_1[2]
-        return
+    coin_toss = 0.5
+    if random() < probability:
+        if random() < coin_toss:
+            child_1[0], child_2[0] = child_2[0], child_1[0]
+        if random() < coin_toss:
+            child_1[1], child_2[1] = child_2[1], child_1[1]
+        if random() < coin_toss:
+            child_1[2], child_2[2] = child_2[2], child_1[2]
 
 
 def mutate(probability, child):
@@ -88,8 +87,19 @@ def mutate(probability, child):
         child[2] = round(random() * (2.37 - 0.27) + 0.27, 2)
 
 
-def graph_generation_count(gen_count):
-    plot.plot(genetic_algorithm(gen_count, 50, 0.6, 0.25))
+def graph_main():
+    plot.plot(genetic_algorithm(150, 50, 0.6, 0.25))
+    plot.ylabel("Fitness")
+    plot.xlabel("Generation")
+    plot.show()
+
+
+def graph_generation_count():
+    plot.plot(genetic_algorithm(10, 50, 0.6, 0.25))
+    plot.plot(genetic_algorithm(25, 50, 0.6, 0.25))
+    plot.plot(genetic_algorithm(50, 50, 0.6, 0.25))
+    plot.plot(genetic_algorithm(100, 50, 0.6, 0.25))
+    plot.legend(['generations = 10', 'generations = 25', 'generations = 50', 'generations = 100'], loc='lower right')
     plot.ylabel("Fitness")
     plot.xlabel("Generation")
     plot.show()
@@ -132,7 +142,8 @@ def graph_mutation():
 
 
 if __name__ == '__main__':
-    graph_generation_count(150)
+    graph_main()
+    # graph_generation_count()
     # graph_population_count()
     # graph_crossover()
     # graph_mutation()
