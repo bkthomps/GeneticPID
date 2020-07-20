@@ -91,7 +91,7 @@ def graph_main():
     plot.plot(genetic_algorithm(150, 50, 0.6, 0.25))
     plot.ylabel("Fitness")
     plot.xlabel("Generation")
-    plot.show()
+    plot.savefig('main.png', bbox_inches='tight')
 
 
 def graph_generation_count():
@@ -102,7 +102,7 @@ def graph_generation_count():
     plot.legend(['generations = 10', 'generations = 25', 'generations = 50', 'generations = 100'], loc='lower right')
     plot.ylabel("Fitness")
     plot.xlabel("Generation")
-    plot.show()
+    plot.savefig('generation.png', bbox_inches='tight')
 
 
 def graph_population_count():
@@ -114,7 +114,7 @@ def graph_population_count():
     plot.legend(['pop = 10', 'pop = 20', 'pop = 30', 'pop = 40', 'pop = 50'], loc='lower right')
     plot.ylabel("Fitness")
     plot.xlabel("Generation")
-    plot.show()
+    plot.savefig('population.png', bbox_inches='tight')
 
 
 def graph_crossover():
@@ -126,19 +126,21 @@ def graph_crossover():
                 loc='lower right')
     plot.ylabel("Fitness")
     plot.xlabel("Generation")
-    plot.show()
+    plot.savefig('crossover.png', bbox_inches='tight')
 
 
 def graph_mutation():
     plot.plot(genetic_algorithm(50, 50, 0.6, 0.10))
     plot.plot(genetic_algorithm(50, 50, 0.6, 0.25))
     plot.plot(genetic_algorithm(50, 50, 0.6, 0.40))
-    plot.plot(genetic_algorithm(50, 50, 0.6, 0.70))
-    plot.legend(['mutation prob. = 10%', 'mutation prob. = 25%', 'mutation prob. = 40%', 'mutation prob. = 70%'],
+    plot.plot(genetic_algorithm(50, 50, 0.6, 0.65))
+    plot.plot(genetic_algorithm(50, 50, 0.6, 0.90))
+    plot.legend(['mutation prob. = 10%', 'mutation prob. = 25%', 'mutation prob. = 40%', 'mutation prob. = 65%',
+                 'mutation prob. = 90%'],
                 loc='lower right')
     plot.ylabel("Fitness")
     plot.xlabel("Generation")
-    plot.show()
+    plot.savefig('mutation.png', bbox_inches='tight')
 
 
 if __name__ == '__main__':
