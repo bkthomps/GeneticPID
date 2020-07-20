@@ -1,3 +1,4 @@
+from multiprocessing import Process, Pipe
 from random import random
 import matplotlib.pyplot as plot
 from control import TransferFunction, feedback, step_response, series, step_info
@@ -22,7 +23,7 @@ def compute_ise(Kp, Ti, Td):
     return ise, t_r, t_s, m_p
 
 
-def genetic_algorithm(generation_count, population_size, crossover_prob, mutate_prob):
+def genetic_algorithm(pipe, generation_count, population_size, crossover_prob, mutate_prob):
     parents = [[8.0, 4.0, 0.5], [12.0, 6.0, 1.5]]
     best_factor, best_tr, best_ts, best_mp = 0.0, 0.0, 0.0, 0.0
     best_factor_list = []
@@ -60,11 +61,13 @@ def genetic_algorithm(generation_count, population_size, crossover_prob, mutate_
             if factor_list[k] > random() * factor_total:
                 parents.append(children[k])
             k = (k + 1) % len(children)
-        print(i, best_factor)
         best_factor_list.append(best_factor)
         i += 1
-    print("Best: t_r = ", best_tr, ", t_s = ", best_ts, ", m_p", best_mp)
-    return best_factor_list
+    pipe.send(best_factor_list)
+    pipe.close()
+    print("For gen={}, pop={}, cross={}, mut={} -> factor={}, t_r={}, t_s={}, m_p={}"
+          .format(generation_count, population_size, crossover_prob, mutate_prob,
+                  best_factor, best_tr, best_ts, best_mp))
 
 
 def crossover(probability, child_1, child_2):
@@ -88,56 +91,91 @@ def mutate(probability, child):
 
 
 def graph_main():
-    plot.plot(genetic_algorithm(150, 50, 0.6, 0.25))
+    parent, child = Pipe()
+    proc = Process(target=genetic_algorithm, args=(child, 10, 50, 0.6, 0.25))
+    proc.start()
+    proc.join()
+    plot.plot(parent.recv())
     plot.ylabel("Fitness")
     plot.xlabel("Generation")
     plot.savefig('main.png', bbox_inches='tight')
 
 
 def graph_generation_count():
-    plot.plot(genetic_algorithm(10, 50, 0.6, 0.25))
-    plot.plot(genetic_algorithm(25, 50, 0.6, 0.25))
-    plot.plot(genetic_algorithm(50, 50, 0.6, 0.25))
-    plot.plot(genetic_algorithm(100, 50, 0.6, 0.25))
-    plot.legend(['generations = 10', 'generations = 25', 'generations = 50', 'generations = 100'], loc='lower right')
+    proc, parent, legend = [], [], []
+    values = [10, 25, 50, 100, 150]
+    for v in values:
+        p, c = Pipe()
+        parent.append(p)
+        proc.append(Process(target=genetic_algorithm, args=(c, v, 50, 0.6, 0.25)))
+        legend.append("generations {}".format(v))
+    for p in proc:
+        p.start()
+    for p in proc:
+        p.join()
+    for p in parent:
+        plot.plot(p.recv())
+    plot.legend(legend, loc='lower right')
     plot.ylabel("Fitness")
     plot.xlabel("Generation")
     plot.savefig('generation.png', bbox_inches='tight')
 
 
 def graph_population_count():
-    plot.plot(genetic_algorithm(50, 10, 0.6, 0.25))
-    plot.plot(genetic_algorithm(50, 20, 0.6, 0.25))
-    plot.plot(genetic_algorithm(50, 30, 0.6, 0.25))
-    plot.plot(genetic_algorithm(50, 40, 0.6, 0.25))
-    plot.plot(genetic_algorithm(50, 50, 0.6, 0.25))
-    plot.legend(['pop = 10', 'pop = 20', 'pop = 30', 'pop = 40', 'pop = 50'], loc='lower right')
+    proc, parent, legend = [], [], []
+    values = [10, 20, 30, 40, 50]
+    for v in values:
+        p, c = Pipe()
+        parent.append(p)
+        proc.append(Process(target=genetic_algorithm, args=(c, 150, values, 0.6, 0.25)))
+        legend.append("pop {}".format(v))
+    for p in proc:
+        p.start()
+    for p in proc:
+        p.join()
+    for p in parent:
+        plot.plot(p.recv())
+    plot.legend(legend, loc='lower right')
     plot.ylabel("Fitness")
     plot.xlabel("Generation")
     plot.savefig('population.png', bbox_inches='tight')
 
 
 def graph_crossover():
-    plot.plot(genetic_algorithm(50, 50, 0.2, 0.25))
-    plot.plot(genetic_algorithm(50, 50, 0.4, 0.25))
-    plot.plot(genetic_algorithm(50, 50, 0.6, 0.25))
-    plot.plot(genetic_algorithm(50, 50, 0.8, 0.25))
-    plot.legend(['crossover prob. = 20%', 'crossover prob. = 40%', 'crossover prob. = 60%', 'crossover prob. = 80%'],
-                loc='lower right')
+    proc, parent, legend = [], [], []
+    values = [0.2, 0.4, 0.6, 0.8]
+    for v in values:
+        p, c = Pipe()
+        parent.append(p)
+        proc.append(Process(target=genetic_algorithm, args=(c, 150, 50, values, 0.25)))
+        legend.append("crossover prob. {}".format(v))
+    for p in proc:
+        p.start()
+    for p in proc:
+        p.join()
+    for p in parent:
+        plot.plot(p.recv())
+    plot.legend(legend, loc='lower right')
     plot.ylabel("Fitness")
     plot.xlabel("Generation")
     plot.savefig('crossover.png', bbox_inches='tight')
 
 
 def graph_mutation():
-    plot.plot(genetic_algorithm(50, 50, 0.6, 0.10))
-    plot.plot(genetic_algorithm(50, 50, 0.6, 0.25))
-    plot.plot(genetic_algorithm(50, 50, 0.6, 0.40))
-    plot.plot(genetic_algorithm(50, 50, 0.6, 0.65))
-    plot.plot(genetic_algorithm(50, 50, 0.6, 0.90))
-    plot.legend(['mutation prob. = 10%', 'mutation prob. = 25%', 'mutation prob. = 40%', 'mutation prob. = 65%',
-                 'mutation prob. = 90%'],
-                loc='lower right')
+    proc, parent, legend = [], [], []
+    values = [0.1, 0.25, 0.4, 0.65, 0.8]
+    for v in values:
+        p, c = Pipe()
+        parent.append(p)
+        proc.append(Process(target=genetic_algorithm, args=(c, 150, 50, 0.6, values)))
+        legend.append("mutation prob. {}".format(v))
+    for p in proc:
+        p.start()
+    for p in proc:
+        p.join()
+    for p in parent:
+        plot.plot(p.recv())
+    plot.legend(legend, loc='lower right')
     plot.ylabel("Fitness")
     plot.xlabel("Generation")
     plot.savefig('mutation.png', bbox_inches='tight')
