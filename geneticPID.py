@@ -127,7 +127,7 @@ def graph_population_count():
     for v in values:
         p, c = Pipe()
         parent.append(p)
-        proc.append(Process(target=genetic_algorithm, args=(c, 150, values, 0.6, 0.25)))
+        proc.append(Process(target=genetic_algorithm, args=(c, 150, v, 0.6, 0.25)))
         legend.append("pop {}".format(v))
     for p in proc:
         p.start()
@@ -147,7 +147,7 @@ def graph_crossover():
     for v in values:
         p, c = Pipe()
         parent.append(p)
-        proc.append(Process(target=genetic_algorithm, args=(c, 150, 50, values, 0.25)))
+        proc.append(Process(target=genetic_algorithm, args=(c, 150, 50, v, 0.25)))
         legend.append("crossover prob. {}".format(v))
     for p in proc:
         p.start()
@@ -167,7 +167,7 @@ def graph_mutation():
     for v in values:
         p, c = Pipe()
         parent.append(p)
-        proc.append(Process(target=genetic_algorithm, args=(c, 150, 50, 0.6, values)))
+        proc.append(Process(target=genetic_algorithm, args=(c, 150, 50, 0.6, v)))
         legend.append("mutation prob. {}".format(v))
     for p in proc:
         p.start()
