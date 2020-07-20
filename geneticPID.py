@@ -143,7 +143,7 @@ def graph_mutation():
 
 if __name__ == '__main__':
     graph_main()
-    # graph_generation_count()
-    # graph_population_count()
-    # graph_crossover()
-    # graph_mutation()
+    graph_generation_count()
+    graph_population_count()
+    graph_crossover()
+    graph_mutation()
