@@ -3,6 +3,11 @@ from random import random
 import matplotlib.pyplot as plot
 from control import TransferFunction, feedback, step_response, series, step_info
 
+default_generations = 150
+default_population = 50
+default_crossover = 0.6
+default_mutation = 0.25
+
 F = TransferFunction(1, [1, 6, 11, 6, 0])
 T = []
 count = 0
@@ -90,25 +95,20 @@ def mutate(probability, child):
         child[2] = round(random() * (2.37 - 0.27) + 0.27, 2)
 
 
-def graph_main():
-    parent, child = Pipe()
-    proc = Process(target=genetic_algorithm, args=(child, 10, 50, 0.6, 0.25))
-    proc.start()
-    proc.join()
-    plot.plot(parent.recv())
-    plot.ylabel("Fitness")
-    plot.xlabel("Generation")
-    plot.savefig('main.png', bbox_inches='tight')
-
-
-def graph_generation_count():
+def graph(name, values):
     proc, parent, legend = [], [], []
-    values = [10, 25, 50, 100, 150]
     for v in values:
         p, c = Pipe()
         parent.append(p)
-        proc.append(Process(target=genetic_algorithm, args=(c, v, 50, 0.6, 0.25)))
-        legend.append("generations {}".format(v))
+        switch = {
+            "main": (c, default_generations, default_population, default_crossover, default_mutation),
+            "generation": (c, v, default_population, default_crossover, default_mutation),
+            "population": (c, default_generations, v, default_crossover, default_mutation),
+            "crossover": (c, default_generations, default_population, v, default_mutation),
+            "mutation": (c, default_generations, default_population, default_crossover, v)
+        }
+        proc.append(Process(target=genetic_algorithm, args=switch.get(name)))
+        legend.append("{} = {}".format(name, v))
     for p in proc:
         p.start()
     for p in proc:
@@ -118,72 +118,12 @@ def graph_generation_count():
     plot.legend(legend, loc='lower right')
     plot.ylabel("Fitness")
     plot.xlabel("Generation")
-    plot.savefig('generation.png', bbox_inches='tight')
-
-
-def graph_population_count():
-    proc, parent, legend = [], [], []
-    values = [10, 20, 30, 40, 50]
-    for v in values:
-        p, c = Pipe()
-        parent.append(p)
-        proc.append(Process(target=genetic_algorithm, args=(c, 150, v, 0.6, 0.25)))
-        legend.append("pop {}".format(v))
-    for p in proc:
-        p.start()
-    for p in proc:
-        p.join()
-    for p in parent:
-        plot.plot(p.recv())
-    plot.legend(legend, loc='lower right')
-    plot.ylabel("Fitness")
-    plot.xlabel("Generation")
-    plot.savefig('population.png', bbox_inches='tight')
-
-
-def graph_crossover():
-    proc, parent, legend = [], [], []
-    values = [0.2, 0.4, 0.6, 0.8]
-    for v in values:
-        p, c = Pipe()
-        parent.append(p)
-        proc.append(Process(target=genetic_algorithm, args=(c, 150, 50, v, 0.25)))
-        legend.append("crossover prob. {}".format(v))
-    for p in proc:
-        p.start()
-    for p in proc:
-        p.join()
-    for p in parent:
-        plot.plot(p.recv())
-    plot.legend(legend, loc='lower right')
-    plot.ylabel("Fitness")
-    plot.xlabel("Generation")
-    plot.savefig('crossover.png', bbox_inches='tight')
-
-
-def graph_mutation():
-    proc, parent, legend = [], [], []
-    values = [0.1, 0.25, 0.4, 0.65, 0.8]
-    for v in values:
-        p, c = Pipe()
-        parent.append(p)
-        proc.append(Process(target=genetic_algorithm, args=(c, 150, 50, 0.6, v)))
-        legend.append("mutation prob. {}".format(v))
-    for p in proc:
-        p.start()
-    for p in proc:
-        p.join()
-    for p in parent:
-        plot.plot(p.recv())
-    plot.legend(legend, loc='lower right')
-    plot.ylabel("Fitness")
-    plot.xlabel("Generation")
-    plot.savefig('mutation.png', bbox_inches='tight')
+    plot.savefig("{}.png".format(name), bbox_inches='tight')
 
 
 if __name__ == '__main__':
-    graph_main()
-    graph_generation_count()
-    graph_population_count()
-    graph_crossover()
-    graph_mutation()
+    graph("main", [None])
+    graph("generation", [10, 25, 50, 100, 150])
+    graph("population", [10, 20, 30, 40, 50])
+    graph("crossover", [0.2, 0.4, 0.6, 0.8])
+    graph("mutation", [0.1, 0.25, 0.4, 0.65, 0.9])
